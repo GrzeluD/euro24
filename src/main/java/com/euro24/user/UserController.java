@@ -1,6 +1,6 @@
 package com.euro24.user;
 
-import com.euro24.MatchResult.MultipleMatchResult;
+import com.euro24.matchResult.MultipleMatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

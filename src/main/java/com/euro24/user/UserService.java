@@ -1,8 +1,8 @@
 package com.euro24.user;
 
-import com.euro24.MatchResult.MatchResult;
-import com.euro24.MatchResult.MultipleMatchResult;
-import com.euro24.MatchResult.UserPrediction;
+import com.euro24.matchResult.MatchResult;
+import com.euro24.matchResult.MultipleMatchResult;
+import com.euro24.matchResult.UserPrediction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +26,7 @@ public class UserService {
 
     public void processMatch(MatchResult matchResult) {
         String matchScore = matchResult.getMatch();
-        int matchWinner = 0;
-        if (matchScore != null) matchWinner = getWinner(matchScore);
+        Integer matchWinner = (matchScore != null && !matchScore.isEmpty()) ? getWinner(matchScore) : null;
 
         for (UserPrediction userPrediction : matchResult.getUsers()) {
             Optional<User> userOptional = userRepository.findByName(userPrediction.getName());
@@ -41,9 +40,20 @@ public class UserService {
                 userRepository.save(user);
             }
 
-            if (userPrediction.isPredictedTopScorer()) user.setPredictedWinner(true);
-            if (userPrediction.isPredictedWinner()) user.setPredictedWinner(true);
-            if (matchScore != null) {
+            if (userPrediction.isPredictedTopScorer()) {
+                user.setPredictedWinner(true);
+                user.addPoints(5);
+            }
+            if (userPrediction.isPredictedWinner()) {
+                user.setPredictedWinner(true);
+                user.addPoints(5);
+            }
+            if (userPrediction.isMostCorrectPredictions()) {
+                user.setMostCorrectPredictions(true);
+                user.addPoints(5);
+            }
+
+            if (userPrediction.getPrediction() != null && matchWinner != null) {
                 int predictionWinner = getWinner(userPrediction.getPrediction());
 
                 if (matchScore.equals(userPrediction.getPrediction())) {
@@ -54,7 +64,12 @@ public class UserService {
                 } else {
                     user.addPoints(0);
                 }
+
+                if (userPrediction.getPenaltyWinner() != null && userPrediction.getPenaltyWinner().equals(matchResult.getActualPenaltyWinner())) {
+                    user.addPoints(1);
+                }
             }
+
 
             userRepository.save(user);
         }

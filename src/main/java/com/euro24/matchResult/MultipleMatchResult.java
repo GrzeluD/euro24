@@ -1,4 +1,4 @@
-package com.euro24.MatchResult;
+package com.euro24.matchResult;
 
 import lombok.Getter;
 import lombok.Setter;

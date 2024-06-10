@@ -21,10 +21,12 @@ public class User {
     private Integer position;
     private Integer previousPosition;
     private Integer exactMatches;
+    private boolean mostCorrectPredictions;
 
     public User() {
         this.predictedWinner = false;
         this.predictedTopScorer = false;
+        this.mostCorrectPredictions = false;
         this.exactMatches = 0;
         this.points = 0;
         this.position = 0;
