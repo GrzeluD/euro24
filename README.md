@@ -19,6 +19,7 @@ To use the app, you’ll need:
 ## How to Use
 
 1. **Enter Predictions**: Fill in your predictions for upcoming matches.
+2. **Enter Score**: Fill out score, so app can count points for you.
 2. **Submit**: Click the "Submit" button to save your predictions.
 3. **Check Leaderboard**: See how your predictions compare with others.
 
