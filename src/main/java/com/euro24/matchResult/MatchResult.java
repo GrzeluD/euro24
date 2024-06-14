@@ -9,6 +9,5 @@ import java.util.List;
 @Setter
 public class MatchResult {
     private String match;
-    private List<UserPrediction> users;
     private Integer actualPenaltyWinner;
 }

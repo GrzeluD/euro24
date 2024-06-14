@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -24,11 +25,12 @@ public class UserService {
         return userRepository.save(prediction);
     }
 
-    public void processMatch(MatchResult matchResult) {
-        String matchScore = matchResult.getMatch();
-        Integer matchWinner = (matchScore != null && !matchScore.isEmpty()) ? getWinner(matchScore) : null;
+    public void processMatchAndUsers(List<MatchResult> matchResults, List<UserPrediction> userPredictions) {
+        for (UserPrediction userPrediction : userPredictions) {
+            if (userPrediction.getName() == null || userPrediction.getName().isEmpty()) {
+                continue;
+            }
 
-        for (UserPrediction userPrediction : matchResult.getUsers()) {
             Optional<User> userOptional = userRepository.findByName(userPrediction.getName());
             User user;
 
@@ -37,11 +39,10 @@ public class UserService {
             } else {
                 user = new User();
                 user.setName(userPrediction.getName());
-                userRepository.save(user);
             }
 
             if (userPrediction.isPredictedTopScorer()) {
-                user.setPredictedWinner(true);
+                user.setPredictedTopScorer(true);
                 user.addPoints(5);
             }
             if (userPrediction.isPredictedWinner()) {
@@ -53,23 +54,32 @@ public class UserService {
                 user.addPoints(5);
             }
 
-            if (userPrediction.getPrediction() != null && matchWinner != null) {
-                int predictionWinner = getWinner(userPrediction.getPrediction());
+            for (int i = 0; i < matchResults.size(); i++) {
+                MatchResult matchResult = matchResults.get(i);
+                String userPredictionScore = userPrediction.getPredictions().get(i);
+                Integer matchWinner = getWinner(matchResult.getMatch());
 
-                if (matchScore.equals(userPrediction.getPrediction())) {
-                    user.addPoints(3);
-                    user.incrementExactMatches();
-                } else if (matchWinner == predictionWinner) {
-                    user.addPoints(1);
-                } else {
-                    user.addPoints(0);
-                }
+                if (userPredictionScore != null && !userPredictionScore.isEmpty()) {
+                    int predictionWinner = getWinner(userPredictionScore);
 
-                if (userPrediction.getPenaltyWinner() != null && userPrediction.getPenaltyWinner().equals(matchResult.getActualPenaltyWinner())) {
-                    user.addPoints(1);
+                    if (matchResult.getMatch().equals(userPredictionScore)) {
+                        user.addPoints(3);
+                        user.incrementExactMatches();
+                    } else if (matchWinner == predictionWinner) {
+                        user.addPoints(1);
+                    } else {
+                        user.addPoints(0);
+                    }
+
+                    if (userPrediction.getPenaltyPredictions() != null && userPrediction.getPenaltyPredictions().size() > i) {
+                        String penaltyPrediction = userPrediction.getPenaltyPredictions().get(i);
+                        if (penaltyPrediction != null && !penaltyPrediction.isEmpty() &&
+                                penaltyPrediction.equals(String.valueOf(matchResult.getActualPenaltyWinner()))) {
+                            user.addPoints(1);
+                        }
+                    }
                 }
             }
-
 
             userRepository.save(user);
         }
@@ -87,19 +97,25 @@ public class UserService {
 
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
-            user.setPreviousPosition(user.getPosition());
             user.setPosition(i + 1);
             userRepository.save(user);
         }
     }
 
     public void processMatches(MultipleMatchResult multipleMatchResult) {
-        for (MatchResult matchResult : multipleMatchResult.getMatches()) {
-            processMatch(matchResult);
+        List<MatchResult> matchResults = multipleMatchResult.getMatches();
+        List<UserPrediction> userPredictions = multipleMatchResult.getUsers();
+
+        for (User user : userRepository.findAll()) {
+            user.setPreviousPosition(user.getPosition());
+            userRepository.save(user);
         }
+
+        processMatchAndUsers(matchResults, userPredictions);
     }
 
     private int getWinner(String score) {
+        if(Objects.equals(score, "")) return 0;
         String[] parts = score.split(":");
         int team1Score = Integer.parseInt(parts[0]);
         int team2Score = Integer.parseInt(parts[1]);

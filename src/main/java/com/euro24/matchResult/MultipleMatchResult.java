@@ -9,4 +9,5 @@ import java.util.List;
 @Getter
 public class MultipleMatchResult {
     private List<MatchResult> matches;
+    private List<UserPrediction> users;
 }
