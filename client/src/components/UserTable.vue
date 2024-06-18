@@ -1,7 +1,7 @@
 <template>
 
   <section class="p-2 md:p-8 w-full bg-blueDarkBg border-2 border-blueBorder rounded-2xl scrollbar-hidden overflow-x-auto">
-    <div class="pl-10 md:pl-12 flex text-tabsText text-sm md:text-lg mb-4 w-[828px] md:w-[1165px]">
+    <div class="pl-10 md:pl-12 flex text-tabsText text-sm md:text-lg mb-4 w-[828px] md:w-[1133px]">
       <span class="w-[72px] md:w-[104px]">Pozycja</span>
       <span class="w-[200px] md:w-[280px]">Gracz</span>
       <span class="w-[200px]">Ilość dokładnych <br>wyników</span>
@@ -9,7 +9,7 @@
       <span class="w-[200px]">Trafiony zwycięzca <br>turnieju (+5 pkt)</span>
       <span class="w-[96px]">Punkty</span>
     </div>
-    <div class="w-[828px] md:w-[1165px] flex text-whiteColor text-sm md:text-lg even:bg-blueBg py-4 rounded-lg" v-for="user in users" :key="user.id">
+    <div class="w-[828px] md:w-[1133px] flex text-whiteColor text-sm md:text-lg even:bg-blueBg py-4 rounded-lg" v-for="user in users" :key="user.id">
       <span class="pl-1 md:pl-2 w-[56px]" :class="getPositionChangeClass(user)">{{ getPositionChangeText(user) }}</span>
       <span class="w-[72px] md:w-[104px]">{{ user.position }}</span>
       <span class="w-[200px] md:w-[280px]">{{ user.name }}</span>
